@@ -3,165 +3,247 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Langflow Chat Interface</title>
-
+  <title>AtomBot Chat Interface</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       margin: 0;
-      padding: 20px;
-      background-color: #f5f5f5;
+      padding: 0;
+      background-color: #1e2124;
+      color: #ffffff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     .chat-container {
-      max-width: 800px;
+      max-width: 1200px;
       margin: 0 auto;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 80vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .welcome-section {
+      text-align: center;
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: opacity 0.5s ease-out, visibility 0.5s;
+    }
+
+    .welcome-section.hidden {
+      opacity: 0;
+      visibility: hidden;
+      height: 0;
+      margin-bottom: 0;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .icon-placeholder {
+      width: 200px;
+      height: 60px;
+      margin-bottom: 0px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .icon-placeholder img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .header-text {
+      font-size: 33px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .subheader {
+      font-size: 17px;
+      color: #a0a0a0;
+      text-align: center;
     }
 
     .chat-messages {
       flex-grow: 1;
       overflow-y: auto;
+      margin-bottom: 20px;
       padding: 20px;
     }
 
-    .message {
-      margin-bottom: 15px;
-      padding: 10px 15px;
-      border-radius: 15px;
-      max-width: 70%;
-      white-space: pre-wrap;
+    .message-container {
+      display: flex;
+      align-items: center;
+      max-width: fit-content;
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 12px;
       line-height: 1.5;
-    }
-
-    .message h1,
-    .message h2,
-    .message h3 {
-      font-weight: bold;
-      margin-top: 0.5em;
-      margin-bottom: 0.5em;
-      color: #333;
-    }
-
-    .message h1 {
-      font-size: 1.5em;
-    }
-
-    .message h2 {
-      font-size: 1.3em;
-    }
-
-    .message h3 {
-      font-size: 1.1em;
-    }
-
-    .message strong {
-      font-weight: bold;
-    }
-
-    .message ul,
-    .message ol {
-      margin: 0.5em 0;
-      padding-left: 2em;
-    }
-
-    .message li {
-      margin-bottom: 0.5em;
-      line-height: 1.4;
-    }
-
-    .message p {
-      margin: 0 0 1em 0;
-    }
-
-    .message p:last-child {
-      margin-bottom: 0;
-    }
-
-    .message-timestamp {
-      font-size: 0.8em;
-      color: #666;
-      margin-top: 5px;
+      position: relative;
     }
 
     .user-message {
-      background-color: #013A63;
-      color: #fff;
+      background-color: #4169E1;
       margin-left: auto;
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .user-message::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: inherit;
+      right: -10px;
+      top: 15px;
+      transform: rotate(45deg);
     }
 
     .bot-message {
-      background-color: #e9ecef;
-      color: #000;
+      background-color: #2a2d31;
       margin-right: auto;
+      color: #ffffff;
+      border-bottom-left-radius: 4px;
+    }
+
+    .bot-message::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: inherit;
+      left: -10px;
+      top: 15px;
+      transform: rotate(45deg);
     }
 
     .error-message {
-      background-color: #ffebee;
-      color: #c62828;
+      background-color: #3a2a2a;
+      color: #ff6b6b;
       margin-right: auto;
+    }
+ 
+    .message-content {
+      word-break: break-word;
     }
 
     .input-container {
+      background-color: #2a2d31;
+      border-radius: 12px;
+      padding: 8px;
+      margin: 0 auto;
+      width: 90%;
+      max-width: 800px;
       display: flex;
-      padding: 20px;
-      border-top: 1px solid #dee2e6;
+      align-items: center;
+      margin-bottom: 20px;
     }
 
     #message-input {
       flex-grow: 1;
-      padding: 10px;
-      border: 1px solid #dee2e6;
-      border-radius: 5px;
-      margin-right: 10px;
-      font-size: 14px;
-    }
-
-    #send-button {
-      padding: 10px 20px;
-      background-color: #013A63;
-      color: #fff;
+      padding: 12px;
       border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: 500;
+      background-color: transparent;
+      color: #ffffff;
+      font-size: 16px;
+      outline: none;
     }
 
-    #send-button:hover {
-      background-color: #013A63;
+    #message-input::placeholder {
+      color: #6c757d;
+    }
+
+    .button-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .action-button {
+      background-color: transparent;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+      width: 36px;
+      height: 36px;
+    }
+
+    .action-button:hover {
+      background-color: rgba(65, 105, 225, 0.1);
+    }
+
+    .action-button:disabled {
+      color: #3a3d41;
+      cursor: not-allowed;
     }
 
     .loading {
       display: none;
       justify-content: center;
       align-items: center;
-      padding: 5px;
+      padding: 10px;
     }
 
     .spinner {
-      width: 30px;
-      height: 30px;
-      border: 4px solid #e9ecef;
-      border-top: 4px solid #013A63;
+      width: 24px;
+      height: 24px;
+      border: 3px solid #2a2d31;
+      border-top: 3px solid #4169E1;
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
-      0%   { transform: rotate(0deg); }
+      0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .icon-placeholder {
+        width: 100px;
+        height: 66px;
+      }
+
+      .message-container {
+        max-width: 85%;
+      }
     }
   </style>
 </head>
 <body>
   <div class="chat-container">
+    <div class="welcome-section" id="welcome-section">
+      <div class="header">
+        <div class="icon-placeholder">
+          <img src="logo1.png" alt="AtomBot Icon">
+        </div>
+        <div class="header-text">Hi, I'm atombot...</div>
+      </div>
+      <div class="subheader">How can I assist you today?</div>
+    </div>
+
     <div class="chat-messages" id="chat-messages">
-      <div class="message bot-message">Hello! How can I help you today?</div>
     </div>
 
     <div class="loading" id="loading">
@@ -169,23 +251,43 @@
     </div>
 
     <div class="input-container">
-      <input type="text" id="message-input" placeholder="Type your message here..." />
-      <button id="send-button">Send</button>
+      <input type="text" id="message-input" placeholder="Type your query here..." />
+      <div class="button-group">
+        <button id="refresh-button" class="action-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 4v6h-6"></path>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+        </button>
+        <button id="send-button" class="action-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
   <script>
     const messageInput = document.getElementById('message-input');
     const sendButton = document.getElementById('send-button');
+    const refreshButton = document.getElementById('refresh-button');
     const chatMessages = document.getElementById('chat-messages');
     const loadingIndicator = document.getElementById('loading');
+    const welcomeSection = document.getElementById('welcome-section');
 
-    // Dynamically determine the API URL based on the environment
-    const API_URL = window.location.hostname === 'localhost' 
-      ? 'http://localhost:5000/chat'
-      : `${window.location.origin}/chat`;
+    // Fixed API URL for local development
+    const API_URL = 'http://localhost:5000/chat';
 
-    console.log('Using API URL:', API_URL);
+    // Refresh page function
+    function refreshPage() {
+      window.location.reload();
+    }
+
+    function hideWelcomeMessage() {
+      welcomeSection.classList.add('hidden');
+    }
 
     function extractMessage(response) {
       try {
@@ -246,23 +348,33 @@
           .join('');
       } catch (error) {
         console.error('Error formatting message:', error);
-        return message; // Return original message if formatting fails
+        return message;
       }
     }
 
     function addMessage(message, isUser, isError = false) {
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${
+      // Immediately hide welcome section on first user message
+      if (chatMessages.children.length === 0) {
+        hideWelcomeMessage();
+      }
+
+      const messageContainer = document.createElement('div');
+      messageContainer.className = `message-container ${
         isUser ? 'user-message' : isError ? 'error-message' : 'bot-message'
       }`;
 
+      // Create message content div
+      const messageContent = document.createElement('div');
+      messageContent.className = 'message-content';
+
       if (!isUser) {
-        messageDiv.innerHTML = formatMessage(message);
+        messageContent.innerHTML = formatMessage(message);
       } else {
-        messageDiv.textContent = message;
+        messageContent.textContent = message;
       }
 
-      chatMessages.appendChild(messageDiv);
+      messageContainer.appendChild(messageContent);
+      chatMessages.appendChild(messageContainer);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
@@ -294,6 +406,10 @@
 
         console.log('Response status:', response.status);
         
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const responseText = await response.text();
         console.log('Raw response:', responseText);
 
@@ -318,6 +434,8 @@
     }
 
     sendButton.addEventListener('click', sendMessage);
+    refreshButton.addEventListener('click', refreshPage);
+
     messageInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -325,7 +443,6 @@
       }
     });
 
-    // Disable form submission
     document.addEventListener('submit', (e) => e.preventDefault());
   </script>
 </body>
