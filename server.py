@@ -7,21 +7,21 @@ import os
 
 # Set up logging
 logging.basicConfig(
-    level=logging.DEBUG,  # Changed to DEBUG for more detailed local development logs
+    level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__, static_folder='.', static_url_path='/')
+app = Flask(__name__)
 
-# Enable CORS specifically for localhost
-CORS(app, resources={r"/*": {"origins": "http://localhost:5000"}})
+# Enable CORS
+CORS(app)
 
-# Configuration variables
+# Configuration variables - replace these with your actual values
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
-LANGFLOW_ID = "9a651376-1593-4fec-ae77-58a912a5032e"
-FLOW_ID = "01330d3c-d0e2-439c-a69f-8c6071ed99cf"
-APPLICATION_TOKEN = "AstraCS:FeYitNOMPNQuEZHDoCCGpDca:84784d04bebbd576931b9df3499114dea1adf911a821eccda34d3b180d4910d4"
+LANGFLOW_ID = os.environ.get("LANGFLOW_ID", "9a651376-1593-4fec-ae77-58a912a5032e")
+FLOW_ID = os.environ.get("FLOW_ID", "01330d3c-d0e2-439c-a69f-8c6071ed99cf")
+APPLICATION_TOKEN = os.environ.get("APPLICATION_TOKEN")
 
 def validate_token():
     """Validate that the token is properly configured."""
@@ -43,8 +43,6 @@ def run_flow(message, endpoint, output_type="chat", input_type="chat", applicati
             "Content-Type": "application/json",
             "Authorization": f"Bearer {application_token}"
         }
-        logger.debug(f"Making request to API: {api_url}")  # Changed to debug for local development
-        logger.debug(f"Payload: {payload}")  # Added payload logging
         response = requests.post(api_url, json=payload, headers=headers)
         response.raise_for_status()
         return response.json()
@@ -56,14 +54,14 @@ def run_flow(message, endpoint, output_type="chat", input_type="chat", applicati
 @app.route('/')
 def serve_html():
     """Serve the main HTML page."""
-    return send_from_directory('.', 'index.html')
+    return app.send_static_file('index.html')
 
 @app.route('/chat', methods=['POST'])
 def chat():
     """Handle chat requests."""
     try:
         data = request.json
-        logger.debug(f"Received chat request: {data}")  # Added request logging
+        logger.info(f"Received chat request: {data}")
         
         if not data or 'message' not in data:
             return jsonify({'error': 'Message is required'}), 400
@@ -93,7 +91,6 @@ def health_check():
 if __name__ == '__main__':
     if validate_token():
         logger.info("Token validation successful, starting server...")
-        # Changed to run on localhost with debug mode enabled
-        app.run(host='localhost', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
     else:
         logger.error("Server not started due to token configuration issue")
